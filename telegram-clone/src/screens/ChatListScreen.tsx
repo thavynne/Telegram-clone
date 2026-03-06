@@ -1,128 +1,160 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
     View, Text, FlatList, TouchableOpacity, StyleSheet,
-    ActivityIndicator, SafeAreaView, Alert
+    SafeAreaView, TextInput
 } from "react-native";
-import { CometChat } from "@cometchat/chat-sdk-react-native";
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import { useChat } from "../services/ChatContext";
 import { logout } from "../services/authService";
+import ChatItem from "../components/ChatItem";
 
-export default function ChatListScreen({ navigation }: any) {
-    const [users, setUsers] = useState<CometChat.User[]>([]);
-    const [loading, setLoading] = useState(true);
+interface ChatListScreenProps {
+    navigation?: any;
+    isSplitView?: boolean;
+}
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+export default function ChatListScreen({ navigation, isSplitView }: ChatListScreenProps) {
+    const { chatList, selectedChat, setSelectedChat, setContactModalVisible } = useChat();
+    const [searchQuery, setSearchQuery] = useState("");
 
-    const fetchUsers = async () => {
-        try {
-            const usersRequest = new CometChat.UsersRequestBuilder()
-                .setLimit(30)
-                .build();
-
-            const userList = await usersRequest.fetchNext();
-            setUsers(userList);
-        } catch (error) {
-            console.error("Erro ao buscar usuários:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const filteredChats = chatList.filter(chat =>
+        chat.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const handleLogout = async () => {
         try {
             await logout();
         } catch (error: any) {
-            Alert.alert("Erro ao sair", error.message ?? String(error));
+            console.error("Erro ao sair", error);
         }
     };
 
-    const renderItem = ({ item }: { item: CometChat.User }) => (
-        <TouchableOpacity
-            style={styles.userItem}
-            onPress={() =>
-                navigation.navigate("Chat", {
-                    uid: item.getUid(),
-                    name: item.getName(),
-                })
-            }
-        >
-            <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                    {item.getName().charAt(0).toUpperCase()}
-                </Text>
-            </View>
-            <View style={styles.userInfo}>
-                <Text style={styles.userName}>{item.getName()}</Text>
-                <Text style={styles.userStatus}>
-                    {item.getStatus() === "online" ? "🟢 Online" : "⚫ Offline"}
-                </Text>
-            </View>
-        </TouchableOpacity>
-    );
+    const handleMenuSelect = (value: string) => {
+        if (value === 'logout') {
+            handleLogout();
+        } else if (value === 'settings') {
+            // Placeholder
+        } else if (value === 'new_contact') {
+            setContactModalVisible(true);
+        }
+    };
+
+    const handleChatPress = (chat: any) => {
+        setSelectedChat(chat);
+        if (!isSplitView && navigation) {
+            navigation.navigate("Chat");
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* Header */}
+            {/* Header Telegram Style */}
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Conversas</Text>
-                <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-                    <Text style={styles.logoutText}>Sair</Text>
-                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Chats</Text>
+
+                <Menu onSelect={value => handleMenuSelect(value)}>
+                    <MenuTrigger>
+                        <View style={styles.menuTrigger}>
+                            <Text style={styles.menuDots}>⋮</Text>
+                        </View>
+                    </MenuTrigger>
+                    <MenuOptions customStyles={{ optionsContainer: styles.menuOptions }}>
+                        <MenuOption value="new_contact" text="Novo contato" />
+                        <MenuOption value="settings" text="Configurações" />
+                        <MenuOption value="logout">
+                            <Text style={{ color: 'red' }}>Sair da conta</Text>
+                        </MenuOption>
+                    </MenuOptions>
+                </Menu>
             </View>
 
-            {loading ? (
-                <ActivityIndicator style={styles.loader} size="large" color="#2196F3" />
-            ) : users.length === 0 ? (
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Buscar chats..."
+                    placeholderTextColor="#94a3b8"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
+            </View>
+
+            {/* Chat List */}
+            {filteredChats.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>Nenhum usuário encontrado.</Text>
+                    <Text style={styles.emptyText}>Nenhum chat encontrado.</Text>
                 </View>
             ) : (
                 <FlatList
-                    data={users}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.getUid()}
-                    ItemSeparatorComponent={() => <View style={styles.separator} />}
+                    data={filteredChats}
+                    renderItem={({ item }) => (
+                        <ChatItem
+                            name={item.name}
+                            avatarUrl={item.avatarUrl}
+                            lastMessage={item.lastMessage}
+                            time={item.time}
+                            unreadCount={item.unreadCount}
+                            isActive={isSplitView && selectedChat?.id === item.id}
+                            onPress={() => handleChatPress(item)}
+                        />
+                    )}
+                    keyExtractor={item => item.id}
                 />
             )}
+
+            {/* Floating Action Button para adicionar contato */}
+            <TouchableOpacity style={styles.fab} onPress={() => setContactModalVisible(true)} activeOpacity={0.8}>
+                <Text style={styles.fabText}>+</Text>
+            </TouchableOpacity>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#f5f5f5" },
+    container: { flex: 1, backgroundColor: "#020617" },
     header: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#2196F3",
-        padding: 16,
+        backgroundColor: "#1e293b",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
         justifyContent: "space-between",
     },
     headerTitle: { color: "#fff", fontSize: 20, fontWeight: "bold" },
-    logoutBtn: { padding: 4 },
-    logoutText: { color: "#fff", fontSize: 14 },
-    loader: { flex: 1, justifyContent: "center" },
-    emptyContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-    emptyText: { color: "#888", fontSize: 16 },
-    userItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#fff",
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+    menuTrigger: { padding: 8 },
+    menuDots: { color: "#fff", fontSize: 24, fontWeight: "bold", lineHeight: 24 },
+    menuOptions: { backgroundColor: '#1e293b', padding: 5, borderRadius: 8 },
+    searchContainer: { padding: 12, backgroundColor: "#020617" },
+    searchInput: {
+        backgroundColor: "#0f172a",
+        color: "#fff",
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        fontSize: 14,
     },
-    avatar: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: "#2196F3",
+    emptyContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+    emptyText: { color: "#64748b", fontSize: 16 },
+    fab: {
+        position: "absolute",
+        bottom: 20,
+        right: 20,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: "#2563eb",
         justifyContent: "center",
         alignItems: "center",
-        marginRight: 12,
+        elevation: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
     },
-    avatarText: { color: "#fff", fontSize: 20, fontWeight: "bold" },
-    userInfo: { flex: 1 },
-    userName: { fontSize: 16, fontWeight: "600", color: "#222" },
-    userStatus: { fontSize: 12, color: "#888", marginTop: 2 },
-    separator: { height: 1, backgroundColor: "#eee" },
+    fabText: {
+        color: "#fff",
+        fontSize: 32,
+        fontWeight: "400",
+        marginTop: -4
+    },
 });

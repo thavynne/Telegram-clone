@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, TextInput, Button, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebase";
 
@@ -18,29 +19,31 @@ export default function LoginScreen({ navigation }: {
     };
 
     return (
-        <View style={styles.container}>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="#94a3b8"
-                value={email}
-                onChangeText={setEmail}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#94a3b8"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-                <Text style={styles.linkText}>Não tem conta? Cadastre-se</Text>
-            </TouchableOpacity>
-        </View>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#0f172a" }}>
+            <View style={styles.container}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    placeholderTextColor="#94a3b8"
+                    value={email}
+                    onChangeText={setEmail}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    placeholderTextColor="#94a3b8"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                />
+                <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+                    <Text style={styles.linkText}>Não tem conta? Cadastre-se</Text>
+                </TouchableOpacity>
+            </View>
+        </SafeAreaView>
     );
 }
 
@@ -49,7 +52,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         padding: 20,
-        backgroundColor: "#0f172a",
     },
     input: {
         backgroundColor: "#1e293b",
