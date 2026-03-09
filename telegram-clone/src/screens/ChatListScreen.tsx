@@ -33,7 +33,7 @@ export default function ChatListScreen({ navigation, isSplitView }: ChatListScre
         if (value === 'logout') {
             handleLogout();
         } else if (value === 'settings') {
-            // Placeholder
+            // placeholder
         } else if (value === 'new_contact') {
             setContactModalVisible(true);
         }
@@ -48,7 +48,7 @@ export default function ChatListScreen({ navigation, isSplitView }: ChatListScre
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* Header Telegram Style */}
+
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Chats</Text>
 
@@ -58,6 +58,7 @@ export default function ChatListScreen({ navigation, isSplitView }: ChatListScre
                             <Text style={styles.menuDots}>⋮</Text>
                         </View>
                     </MenuTrigger>
+
                     <MenuOptions customStyles={{ optionsContainer: styles.menuOptions }}>
                         <MenuOption value="new_contact" text="Novo contato" />
                         <MenuOption value="settings" text="Configurações" />
@@ -68,7 +69,6 @@ export default function ChatListScreen({ navigation, isSplitView }: ChatListScre
                 </Menu>
             </View>
 
-            {/* Search Bar */}
             <View style={styles.searchContainer}>
                 <TextInput
                     style={styles.searchInput}
@@ -79,7 +79,6 @@ export default function ChatListScreen({ navigation, isSplitView }: ChatListScre
                 />
             </View>
 
-            {/* Chat List */}
             {filteredChats.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <Text style={styles.emptyText}>Nenhum chat encontrado.</Text>
@@ -102,10 +101,6 @@ export default function ChatListScreen({ navigation, isSplitView }: ChatListScre
                 />
             )}
 
-            {/* Floating Action Button para adicionar contato */}
-            <TouchableOpacity style={styles.fab} onPress={() => setContactModalVisible(true)} activeOpacity={0.8}>
-                <Text style={styles.fabText}>+</Text>
-            </TouchableOpacity>
         </SafeAreaView>
     );
 }
@@ -135,26 +130,4 @@ const styles = StyleSheet.create({
     },
     emptyContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
     emptyText: { color: "#64748b", fontSize: 16 },
-    fab: {
-        position: "absolute",
-        bottom: 20,
-        right: 20,
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: "#2563eb",
-        justifyContent: "center",
-        alignItems: "center",
-        elevation: 5,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-    },
-    fabText: {
-        color: "#fff",
-        fontSize: 32,
-        fontWeight: "400",
-        marginTop: -4
-    },
 });

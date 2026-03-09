@@ -30,7 +30,7 @@ export default function LoginScreen({ navigation }: {
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Password"
+                    placeholder="Senha"
                     placeholderTextColor="#94a3b8"
                     value={password}
                     onChangeText={setPassword}

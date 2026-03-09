@@ -30,7 +30,6 @@ export default function ChatScreen({ navigation, isSplitView }: ChatScreenProps)
     // Modal States for New Contact
     const [newContactName, setNewContactName] = useState("");
     const [newContactEmail, setNewContactEmail] = useState("");
-    const [newContactUrl, setNewContactUrl] = useState("");
 
     const flatListRef = useRef<FlatList>(null);
 
@@ -42,18 +41,20 @@ export default function ChatScreen({ navigation, isSplitView }: ChatScreenProps)
     };
 
     const handleAddContact = () => {
-        addContact(newContactName, newContactEmail, newContactUrl);
+        if (!newContactName.trim()) return;
+
+        addContact(newContactName, newContactEmail, "");
+
         setContactModalVisible(false);
         setNewContactName("");
         setNewContactEmail("");
-        setNewContactUrl("");
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#0f172a" }} edges={isSplitView ? [] : ['top', 'bottom', 'left', 'right']}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#0f172a" }} edges={isSplitView ? [] : ['top', 'bottom']}>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
-                behavior={Platform.OS === "ios" ? "padding" : undefined}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
                 <View style={styles.container}>
                     {selectedChat ? (
@@ -66,6 +67,7 @@ export default function ChatScreen({ navigation, isSplitView }: ChatScreenProps)
                                 )}
                                 <Avatar url={selectedChat.avatarUrl} size={40} />
                                 <Text style={styles.chatHeaderTitle}>{selectedChat.name}</Text>
+
                             </View>
 
                             <FlatList
@@ -98,14 +100,8 @@ export default function ChatScreen({ navigation, isSplitView }: ChatScreenProps)
                             <Text style={styles.emptyChatText}>Selecione um chat para começar a enviar mensagens</Text>
                         </View>
                     )}
-
-                    {/* FAB moved here to affect the whole screen in split view, or just chatlist in mobile, 
-                        Wait, in telegram style mobile, FAB is on the ChatList. Let's move this to ChatListScreen or app level. 
-                        Actually, it should be on ChatListScreen. I will show it here conditionally or move it entirely.
-                    */}
                 </View>
 
-                {/* Modal de Novo Contato */}
                 <Modal visible={isContactModalVisible} transparent animationType="slide">
                     <View style={styles.modalOverlay}>
                         <View style={styles.modalContent}>
@@ -129,14 +125,6 @@ export default function ChatScreen({ navigation, isSplitView }: ChatScreenProps)
                                 onChangeText={setNewContactEmail}
                             />
 
-                            <TextInput
-                                style={styles.modalInput}
-                                placeholder="URL do Avatar (opcional)"
-                                placeholderTextColor="#94a3b8"
-                                value={newContactUrl}
-                                onChangeText={setNewContactUrl}
-                            />
-
                             <View style={styles.modalButtons}>
                                 <TouchableOpacity style={styles.modalButtonCancel} onPress={() => setContactModalVisible(false)}>
                                     <Text style={styles.modalButtonText}>Cancelar</Text>
@@ -150,8 +138,6 @@ export default function ChatScreen({ navigation, isSplitView }: ChatScreenProps)
                     </View>
                 </Modal>
             </KeyboardAvoidingView>
-
-            {/* FAB explicitly managed by context / app state if needed. But for now, putting it in ChatListScreen is better. Let's leave modal here and trigger it from context, or move modal to App.tsx */}
         </SafeAreaView>
     );
 }
