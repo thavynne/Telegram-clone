@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { register } from '../services/authService';
+import { register } from '../../services/authService';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function RegisterScreen({ navigation }: any) {

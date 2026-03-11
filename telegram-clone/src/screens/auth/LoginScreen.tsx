@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, TextInput, Button, StyleSheet, TouchableOpacity, Text } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../services/firebase";
+import { auth } from "../../services/firebase";
 
 export default function LoginScreen({ navigation }: {
     navigation: any

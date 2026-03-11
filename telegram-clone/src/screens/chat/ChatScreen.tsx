@@ -11,11 +11,11 @@ import {
     Modal
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useChat } from "../services/ChatContext";
-import { auth } from "../services/firebase";
-import MessageBubble from "../components/MessageBubble";
-import InputMessage from "../components/InputMessage";
-import Avatar from "../components/Avatar";
+import { useChat } from "../../services/ChatContext";
+import { auth } from "../../services/firebase";
+import MessageBubble from "../../components/MessageBubble";
+import InputMessage from "../../components/InputMessage";
+import Avatar from "../../components/Avatar";
 
 interface ChatScreenProps {
     navigation?: any;
@@ -43,7 +43,7 @@ export default function ChatScreen({ navigation, isSplitView }: ChatScreenProps)
     const handleAddContact = () => {
         if (!newContactName.trim()) return;
 
-        addContact(newContactName, newContactEmail, "");
+        addContact(newContactName, newContactEmail || "", "");
 
         setContactModalVisible(false);
         setNewContactName("");
@@ -51,7 +51,7 @@ export default function ChatScreen({ navigation, isSplitView }: ChatScreenProps)
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#0f172a" }} edges={isSplitView ? [] : ['top', 'bottom']}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#0f172a" }} edges={isSplitView ? ['top'] : ['top', 'left', 'right', 'bottom']}>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -102,41 +102,6 @@ export default function ChatScreen({ navigation, isSplitView }: ChatScreenProps)
                     )}
                 </View>
 
-                <Modal visible={isContactModalVisible} transparent animationType="slide">
-                    <View style={styles.modalOverlay}>
-                        <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>Novo Contato</Text>
-
-                            <TextInput
-                                style={styles.modalInput}
-                                placeholder="Nome do contato (obrigatório)"
-                                placeholderTextColor="#94a3b8"
-                                value={newContactName}
-                                onChangeText={setNewContactName}
-                            />
-
-                            <TextInput
-                                style={styles.modalInput}
-                                placeholder="E-mail (opcional)"
-                                placeholderTextColor="#94a3b8"
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                                value={newContactEmail}
-                                onChangeText={setNewContactEmail}
-                            />
-
-                            <View style={styles.modalButtons}>
-                                <TouchableOpacity style={styles.modalButtonCancel} onPress={() => setContactModalVisible(false)}>
-                                    <Text style={styles.modalButtonText}>Cancelar</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity style={styles.modalButtonSave} onPress={handleAddContact}>
-                                    <Text style={styles.modalButtonText}>Salvar</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );

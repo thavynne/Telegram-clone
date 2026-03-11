@@ -1,6 +1,7 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import { auth } from "./firebase";
 import { createCometChatUser, loginCometChat, logoutCometChat } from "./cometchat";
+import { signOut } from "firebase/auth";
 
 export const register = async (email: string, password: string, avatar?: string) => {
     // Cria usuário no Firebase
@@ -34,6 +35,5 @@ export const login = async (email: string, password: string) => {
 };
 
 export const logout = async () => {
-    await logoutCometChat();
     await signOut(auth);
 };
